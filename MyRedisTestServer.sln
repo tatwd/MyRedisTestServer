@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRedisTestServer", "MyRedi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRedisTestServer.Console", "MyRedisTestServer.Console\MyRedisTestServer.Console.csproj", "{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRedisTestServer.IntegrationTests", "MyRedisTestServer.IntegrationTests\MyRedisTestServer.IntegrationTests.csproj", "{6B26A42C-CE82-48DA-8422-6BD43275CF3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,11 @@ Global
 		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B26A42C-CE82-48DA-8422-6BD43275CF3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B26A42C-CE82-48DA-8422-6BD43275CF3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B26A42C-CE82-48DA-8422-6BD43275CF3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B26A42C-CE82-48DA-8422-6BD43275CF3A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

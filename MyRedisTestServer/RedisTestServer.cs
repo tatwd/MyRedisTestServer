@@ -120,8 +120,8 @@ public class RedisTestServer
     {
         var log = new StringBuilder()
             .AppendFormat("{0} [{1,2}] ", DateTime.Now, Environment.CurrentManagedThreadId)
-            .Append(msg)
-            // .Append(msg.Replace("\r\n",@"\r\n"))
+            // .Append(msg)
+            .Append(msg.Replace("\r\n",@"\r\n"))
             .AppendLine()
             .ToString();
 
