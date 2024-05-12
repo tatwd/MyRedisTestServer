@@ -2,28 +2,8 @@ using StackExchange.Redis;
 
 namespace MyRedisTestServer.IntegrationTests;
 
-public class StackExchangeRedisClientTests
+public class StackExchangeRedisClientTests : TestBase
 {
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
-    
-    [SetUp]
-    public void SetUp()
-    {
-        new Thread(() =>
-        {
-            new RedisTestServer(TestContext.Out)
-                .StartLocalAsync(6379)
-                .Wait(_cancellationTokenSource.Token);
-        }).Start();
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _cancellationTokenSource.Cancel();
-    }
-
-
     [Test]
     public void Connect_Ok()
     {
@@ -32,7 +12,4 @@ public class StackExchangeRedisClientTests
 
         Assert.Pass();
     }
-    
-    
-    
 }
