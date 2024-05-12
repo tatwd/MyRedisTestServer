@@ -177,12 +177,12 @@ public class RedisTestServer
             return sb.ToString();
         }
 
-        // if (obj is string s)
-        // {
-        //     return $"{s}";
-        // }
-        //
-        return obj.ToString();
+        if (obj is string s)
+        {
+            return $"`{s}`";
+        }
+        
+        return obj?.ToString() ?? "null";
     }
     
 }
