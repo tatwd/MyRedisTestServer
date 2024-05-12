@@ -1,9 +1,11 @@
-﻿namespace MyRedisTestServer.IntegrationTests;
+﻿using System.Text;
 
-using static RespReader;
+namespace MyRedisTestServer.IntegrationTests;
+
+using static RespReadWriter;
 using static RespTypeBuilder;
 
-public class RespReaderTests
+public class RespReadWriterTests
 {
     [Test]
     public void ReadArray_ok()
@@ -98,4 +100,59 @@ public class RespReaderTests
         
         Assert.That(new string(buff), Is.EqualTo(ping));
     }
+
+
+    [Test]
+    public void Write_ok()
+    {
+        WriteTest("*0\r\n");
+        WriteTest("*1\r\n$0\r\n\r\n", "");
+        WriteTest("*1\r\n$4\r\nPING\r\n", "PING");
+        WriteTest("*3\r\n$4\r\nPING\r\n$1\r\na\r\n$1\r\nb\r\n", "PING", "a", "b");
+    }
+
+    private static void WriteTest(string expected, params string[] cmd)
+    {
+        var sb = new StringBuilder();
+        using var sw = new StringWriter(sb);
+
+        Write(sw, cmd);
+
+        var actual = sb.ToString();
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+
+
+    [Test]
+    public void Parse_ok()
+    {
+        // int
+        var n = Parse(Int(12));
+        Assert.That(n, Is.EqualTo(12));
+        
+        // inline
+        var inline = Parse(Inline("foo"));
+        Assert.That(inline, Is.EqualTo("foo"));
+        
+        // string
+        var str = Parse(String("foo"));
+        Assert.That(str, Is.EqualTo("foo"));
+
+        // strings
+        var strList = Parse(Strings("foo", "bar"));
+        Assert.That(strList, Is.EqualTo(new [] { "foo", "bar" }));
+        
+        var strList2 =
+            Parse(
+                "*3\r\n$6\r\nCLIENT\r\n$7\r\nSETNAME\r\n$39\r\nLAPTOP-HUSFAIKI(SE.Redis-v2.7.33.41805)\r\n*4\r\n$6\\r\nCLIENT\r\n$7\r\nSETINFO\r\n$8\r\nlib-name\r\n$8\r\nSE.Redis\r\n");
+        
+        Assert.That(strList2, Is.EqualTo(new [] { "CLIENT","SETNAME","LAPTOP-HUSFAIKI(SE.Redis-v2.7.33.41805)" }));
+
+        // string map
+        var map = Parse(StringMap("foo", "bar", "baz", "zap"));
+        Assert.That(map, Is.EqualTo(new Dictionary<string, string> { ["foo"] = "bar", ["baz"] = "zap" }));
+
+
+    }
+    
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MyRedisTestServer;
 
-public static class RespReader
+public static class RespReadWriter
 {
     private const string ErrProtocol = "unsupported protocol";
     private const string ErrUnexpected = "not what you asked for";
@@ -160,12 +160,12 @@ public static class RespReader
             throw new ArgumentException(ErrUnexpected);
         }
 
-        return str.Substring(1, str.Length - 2);
+        return str.Substring(1, str.Length - 3);
     }
     
     private static int ReadLength(string line)
     {
-        return int.Parse(line.Substring(1, line.Length - 2));
+        return int.Parse(line.Substring(1, line.Length - 3));
     }
 
     private static char[] ReadChars(TextReader textReader, int length)
@@ -222,6 +222,70 @@ public static class RespReader
         return true;
 
     }
+
+
+    public static void Write(TextWriter writer, string[] cmdList)
+    {
+        writer.Write($"*{cmdList.Length}\r\n");
+
+        foreach (var cmd in cmdList)
+        {
+            writer.Write($"${cmd.Length}\r\n{cmd}\r\n");
+        }
+    }
+
+    // exactly a single command (which can be nested).
+    public static object Parse(string? str)
+    {
+        if (str is null || str.Length < 1)
+        {
+            throw new ArgumentException(ErrUnexpected);
+        }
+
+        switch (str[0])
+        {
+            case '+':
+                return ReadInline(str);
+            case '-':
+                var err = ReadInline(str);
+                throw new Exception(err);
+            case ':':
+                var e = ReadInline(str);
+                return int.Parse(e);
+            case '$':
+                return ReadString(str);
+            case '*':
+            {
+                var elems = ReadArray(str);
+                var res = new object[elems.Length];
+
+                for (var i = 0; i < elems.Length; i++)
+                {
+                    res[i] = Parse(elems[i]);
+                }
+
+                return res;
+            }
+            case '%':
+            {
+                var elems = ReadArray(str);
+                var res = new Dictionary<object, object>();
+
+                for (var i = 0; i + 1 < elems.Length; i += 2)
+                {
+                    var key = Parse(elems[i]);
+                    var val = Parse(elems[i + 1]);
+                    res[key] = val;
+                }
+
+                return res;
+            }
+            default:
+                throw new NotSupportedException(ErrProtocol);
+        }
+        
+    }
+    
     
     
 }

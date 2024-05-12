@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -84,6 +85,9 @@ public class RedisTestServer
 
         var request = Encoding.Default.GetString(myReadBuffer, 0, numberOfBytesRead);
         Log("请求: " + request);
+        
+        var result = RespReadWriter.Parse(request);
+        Log("请求Parsed:" + Output(result));
 
         // TODO: need a RESP writer
 
@@ -127,4 +131,54 @@ public class RedisTestServer
 
         _log.Write(log);
     }
+
+    private static string Output(object obj)
+    {
+        if (obj is IDictionary<object, object> dict)
+        {
+            var sb = new StringBuilder(128)
+                .Append("{");
+
+            foreach (var kv in dict)
+            {
+                if (sb.Length > 1)
+                {
+                    sb.Append(",");
+                }
+                
+                sb.Append(Output(kv.Key));
+                sb.Append(":");
+                sb.Append(Output(kv.Value));
+            }
+
+            sb.Append("}");
+            return sb.ToString();
+        }
+
+        if (obj is ICollection arr)
+        {
+            var sb = new StringBuilder(128)
+                .Append("[");
+
+            foreach (var item in arr)
+            {
+                if (sb.Length > 1)
+                {
+                    sb.Append(",");
+                }
+                sb.Append(Output(item));
+            }
+
+            sb.Append("]");
+            return sb.ToString();
+        }
+
+        if (obj is string s)
+        {
+            return $"\"{s}\"";
+        }
+        
+        return obj.ToString();
+    }
+    
 }
