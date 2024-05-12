@@ -63,7 +63,7 @@ public class RedisTestServer
             try
             {
                 var stream = handler.GetStream();
-                var response = await ReadToEnd2(stream);
+                var response = await Task.Factory.StartNew(() => ReadToEnd2(stream));
                 Log("响应: " + response);
 
                 var sendBytes = Encoding.UTF8.GetBytes(response);
@@ -78,16 +78,20 @@ public class RedisTestServer
         }
     }
     
-    private async Task<string> ReadToEnd2(Stream stream)
+    private  string //async Task<string> 
+        ReadToEnd2(Stream stream)
     {
-        var myReadBuffer = new byte[4096];
-        var numberOfBytesRead = await stream.ReadAsync(myReadBuffer, 0, myReadBuffer.Length);
+        // var myReadBuffer = new byte[4096];
+        // var numberOfBytesRead = await stream.ReadAsync(myReadBuffer, 0, myReadBuffer.Length);
 
-        var request = Encoding.Default.GetString(myReadBuffer, 0, numberOfBytesRead);
+        var sr = new StreamReader(stream);
+        var request = RespReadWriter.Read(sr);
+        
+        // var request = Encoding.Default.GetString(myReadBuffer, 0, numberOfBytesRead);
         Log("请求: " + request);
         
         var result = RespReadWriter.Parse(request);
-        Log("请求Parsed:" + Output(result));
+        Log("请求Parsed: " + Output(result));
 
         // TODO: need a RESP writer
 
@@ -164,7 +168,7 @@ public class RedisTestServer
             {
                 if (sb.Length > 1)
                 {
-                    sb.Append(",");
+                    sb.Append(", ");
                 }
                 sb.Append(Output(item));
             }
@@ -173,11 +177,11 @@ public class RedisTestServer
             return sb.ToString();
         }
 
-        if (obj is string s)
-        {
-            return $"\"{s}\"";
-        }
-        
+        // if (obj is string s)
+        // {
+        //     return $"{s}";
+        // }
+        //
         return obj.ToString();
     }
     
