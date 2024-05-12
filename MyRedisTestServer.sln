@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRedisTestServer", "MyRedisTestServer\MyRedisTestServer.csproj", "{F43CA6D9-7DB9-4C75-8A63-8ADDC46D701E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRedisTestServer.Console", "MyRedisTestServer.Console\MyRedisTestServer.Console.csproj", "{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F43CA6D9-7DB9-4C75-8A63-8ADDC46D701E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F43CA6D9-7DB9-4C75-8A63-8ADDC46D701E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F43CA6D9-7DB9-4C75-8A63-8ADDC46D701E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F43CA6D9-7DB9-4C75-8A63-8ADDC46D701E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33F6F71C-36BC-4E5E-AC3D-746A7228DE99}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
