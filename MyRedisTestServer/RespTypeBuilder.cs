@@ -1,5 +1,7 @@
 ﻿namespace MyRedisTestServer;
 
+// https://redis.io/docs/latest/develop/reference/protocol-spec/
+
 public static class RespTypeBuilder
 {
     public static string String(string? str)
