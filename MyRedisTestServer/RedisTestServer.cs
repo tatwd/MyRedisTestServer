@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MyRedisTestServer;
 
@@ -15,7 +10,8 @@ public class RedisTestServer
 
     public RedisTestServer(TextWriter? log = null)
     {
-        _log ??= Console.Out;
+        log ??= Console.Out;
+        _log = log;
     }
     
     public Task StartLocalAsync(int port)
@@ -37,7 +33,7 @@ public class RedisTestServer
             while (true)
             {
                 var handler = await listener.AcceptTcpClientAsync();
-                Log("Connected! client: " + handler.Client.RemoteEndPoint.ToString());
+                Log("Connected! client: " + handler.Client.RemoteEndPoint);
                 
                 var task = Task.Factory.StartNew(() =>
                 {
@@ -81,7 +77,7 @@ public class RedisTestServer
         }
     }
     
-    private static async Task<string> ReadToEnd2(Stream stream)
+    private async Task<string> ReadToEnd2(Stream stream)
     {
         var myReadBuffer = new byte[4096];
         var numberOfBytesRead = await stream.ReadAsync(myReadBuffer, 0, myReadBuffer.Length);
@@ -103,16 +99,16 @@ public class RedisTestServer
         return "+OK\r\n";
     }
 
-    private static bool IsReadCmd(string request) 
-    {
-        return ReadCmdList.Any(request.Contains);
-    }
+    // private static bool IsReadCmd(string request) 
+    // {
+    //     return ReadCmdList.Any(request.Contains);
+    // }
 
-    private static readonly string[] ReadCmdList = new string[]
-    {
-        Cmd("GET"),
-        Cmd("MGET"),
-    };
+    // private static readonly string[] ReadCmdList = new string[]
+    // {
+    //     Cmd("GET"),
+    //     Cmd("MGET"),
+    // };
 
     private static string Cmd(string cmdStr) 
     {
@@ -120,7 +116,7 @@ public class RedisTestServer
     }
 
     // TODO: need a ILogger
-    private static void Log(string msg)
+    private void Log(string msg)
     {
         var log = new StringBuilder()
             .AppendFormat("{0} [{1,2}] ", DateTime.Now, Environment.CurrentManagedThreadId)
@@ -129,6 +125,6 @@ public class RedisTestServer
             .AppendLine()
             .ToString();
 
-        Console.Write(log);
+        _log.Write(log);
     }
 }
