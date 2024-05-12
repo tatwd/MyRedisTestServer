@@ -88,15 +88,15 @@ public class RedisTestServer
         // TODO: need a RESP writer
 
         if (request.Contains(Cmd("PING"))) 
-            return "+PONG\r\n";
+            return RespTypeBuilder.Inline("PONG");
 
         if (request.Contains(Cmd("EXISTS")))
-            return ":0\r\n";
+            return RespTypeBuilder.Int(0);
 
         // if (IsReadCmd(request))
         //     return "_\r\n"; // 读取指令 什么也不返回
         
-        return "+OK\r\n";
+        return RespTypeBuilder.Inline("OK");
     }
 
     // private static bool IsReadCmd(string request) 
