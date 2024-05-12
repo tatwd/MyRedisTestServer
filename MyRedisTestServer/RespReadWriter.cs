@@ -118,23 +118,29 @@ public static class RespReadWriter
             {
                 var length = ReadLength(line);
 
+                var sb = new StringBuilder();
+                sb.Append(line);
+
                 for (var i = 0; i < length; i++)
                 {
                     var next = Read(textReader);
-                    line += next;
+                    sb.Append(next);
                 }
 
-                return line;
+                return sb.ToString();
             }
             case '%':
             {
                 var length = ReadLength(line);
+                var sb = new StringBuilder();
+                sb.Append(line);
+                
                 for (var i = 0; i < length * 2; i++)
                 {
                     var next = Read(textReader);
-                    line += next;
+                    sb.Append(next);
                 }
-                return line;
+                return sb.ToString();
             }
             
             default:
