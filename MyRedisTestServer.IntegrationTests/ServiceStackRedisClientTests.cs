@@ -9,7 +9,8 @@ public class ServiceStackRedisClientTests : TestBase
     {
         var redis = new RedisClient("localhost");
 
-        redis.Set("foo", "bar");
+        redis.Set("hello", 1);
+        redis.Set("foo", "bar\r\nbaz");
         
         Assert.Pass();
     }
