@@ -1,0 +1,64 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: write
+    
+jobs:
+  build:
+
+    env:
+      BUILD_CONFIG: 'Release'
+      SOLUTION: 'MyRedisTestServer.sln'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # - name: Setup NuGet
+    #   uses: nuget/setup-nuget@v1
+    #   with:
+    #     nuget-version: '5.x'
+    # - uses: actions/cache@v1
+    #   id: cache
+    #   with:
+    #     path: ~/.nuget/packages
+    #     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.x
+
+    - name: Restore dependencies by dotnet sdk
+      # if: steps.cache.outputs.cache-hit != 'true'
+      run: dotnet restore $SOLUTION
+
+    - name: Build
+      run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore
+
+    - name: Run tests
+      run: dotnet test --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal
+   
+    - name: Pack
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        dotnet pack --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      # env:
+      #   GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        files: |
+          **/*.nupkg
+        # TODO: create changelog.md
+        # body_path: changelog.md
+
+    - name: Publish to nuget.org
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{secrets.NUGET_API_KEY}}

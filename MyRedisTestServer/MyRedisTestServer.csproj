@@ -7,4 +7,20 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
+      <PropertyGroup>
+        <PackageId>MyRedisTestServer</PackageId>
+        <Version>1.0.0-preview.1</Version>
+        <Description>A fake redis server for integration testing</Description>
+        <PackageTags>Redis Test Server;Unit Testing;Integration Testing</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RepositoryUrl>https://github.com/tatwd/MyRedisTestServer</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
 </Project>
