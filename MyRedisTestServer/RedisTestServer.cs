@@ -148,7 +148,7 @@ public class RedisTestServer
 
         for (var i = 0; i < args.Length; i++)
         {
-            outArgs[i] = args[i].ToString();
+            outArgs[i] = args[i].ToString()!;
         }
         
         return outArgs;
