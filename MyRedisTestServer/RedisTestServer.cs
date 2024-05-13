@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -14,6 +13,8 @@ public class RedisTestServer
 
     private readonly TcpListener _listener;
 
+    private bool _enableDebugLog;
+
     public RedisTestServer(int port, TextWriter? log = null)
     {
         log ??= Console.Out;
@@ -23,6 +24,11 @@ public class RedisTestServer
         
         var ipEndPoint = new IPEndPoint(IPAddress.Loopback, port);
         _listener = new TcpListener(ipEndPoint);
+    }
+
+    public void DebugMode(bool enabled)
+    {
+        _enableDebugLog = enabled;
     }
 
     public RedisTestServer AddRedisCmdHandler(string cmdType, IRedisCmdHandler handler)
@@ -87,7 +93,7 @@ public class RedisTestServer
                 await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
 
             }
-            catch (System.ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 Log(ex.ToString());
                 return;
@@ -105,12 +111,15 @@ public class RedisTestServer
         var sr = new StreamReader(stream, Encoding.UTF8, true, 1024);
 
         var request = RespReadWriter.Read(sr);
-        Log("请求(raw): " + request);
+        if (_enableDebugLog)
+        {
+            Log("请求(raw): " + request);
+        }
 
         var result = (object[])RespReadWriter.Parse(request); // client request is always array
         var clientReqArgs = ToStringArray(result);
         
-        Log("请求: " + Output(clientReqArgs));
+        Log("请求: " + OutputArray(clientReqArgs));
 
         var cmdType = clientReqArgs[0];
 
@@ -148,7 +157,7 @@ public class RedisTestServer
         return RespTypeBuilder.Inline("OK");
     }
 
-    private string[] ToStringArray(object[] args)
+    private static string[] ToStringArray(object[] args)
     {
         var outArgs = new string[args.Length];
 
@@ -224,53 +233,23 @@ public class RedisTestServer
         _log.Write(log);
     }
 
-    private static string Output(object obj)
+    private static string OutputArray(string[] obj)
     {
-        if (obj is IDictionary<object, object> dict)
-        {
-            var sb = new StringBuilder(128)
-                .Append("{");
+        var sb = new StringBuilder(128)
+            .Append("[");
 
-            foreach (var kv in dict)
+        foreach (var item in obj)
+        {
+            if (sb.Length > 1)
             {
-                if (sb.Length > 1)
-                {
-                    sb.Append(",");
-                }
-                
-                sb.Append(Output(kv.Key));
-                sb.Append(":");
-                sb.Append(Output(kv.Value));
+                sb.Append(", ");
             }
-
-            sb.Append("}");
-            return sb.ToString();
+            
+            sb.Append('`').Append(item).Append('`');
         }
 
-        if (obj is ICollection arr)
-        {
-            var sb = new StringBuilder(128)
-                .Append("[");
-
-            foreach (var item in arr)
-            {
-                if (sb.Length > 1)
-                {
-                    sb.Append(", ");
-                }
-                sb.Append(Output(item));
-            }
-
-            sb.Append("]");
-            return sb.ToString();
-        }
-
-        if (obj is string s)
-        {
-            return $"`{s}`";
-        }
-        
-        return obj?.ToString() ?? "null";
+        sb.Append("]");
+        return sb.ToString();
     }
     
 }
