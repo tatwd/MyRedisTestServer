@@ -12,39 +12,45 @@ public class RedisTestServer
 
     private readonly ConcurrentDictionary<string, IRedisCmdHandler> _redisCmdHandlers;
 
-    public RedisTestServer(TextWriter? log = null)
+    private readonly TcpListener _listener;
+
+    public RedisTestServer(int port, TextWriter? log = null)
     {
         log ??= Console.Out;
         _log = log;
 
         _redisCmdHandlers = new ConcurrentDictionary<string, IRedisCmdHandler>(StringComparer.OrdinalIgnoreCase);
+        
+        var ipEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        _listener = new TcpListener(ipEndPoint);
     }
 
     public RedisTestServer AddRedisCmdHandler(string cmdType, IRedisCmdHandler handler)
     {
         _redisCmdHandlers.TryAdd(cmdType, handler);
         return this;
-    } 
-    
-    public Task StartLocalAsync(int port)
-    {
-        var ipEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-        return StartAsync(ipEndPoint);
     }
 
-    private async Task StartAsync(IPEndPoint ipEndPoint)
+    public void Stop()
     {
+        _listener.Stop();
+    }
+    
+    public Task StartAsync()
+    {
+        return StartAsyncInternal();
+    }
 
-        TcpListener listener = new TcpListener(ipEndPoint);
-
+    private async Task StartAsyncInternal()
+    {
         try
         {
-            listener.Start();
+            _listener.Start();
             Log("Hello, RedisTestServer!");
 
             while (true)
             {
-                var handler = await listener.AcceptTcpClientAsync();
+                var handler = await _listener.AcceptTcpClientAsync();
                 Log("Connected! client: " + handler.Client.RemoteEndPoint);
                 
                 var task = Task.Factory.StartNew(() =>
@@ -61,7 +67,7 @@ public class RedisTestServer
         }
         finally
         {
-            listener.Stop();
+            _listener.Stop();
             Log("Stop finished!");
         }
     }

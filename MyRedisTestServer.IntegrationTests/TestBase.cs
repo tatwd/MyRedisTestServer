@@ -10,10 +10,13 @@ public class TestBase
         new Thread(() =>
         {
             try {
-                new RedisTestServer(TestContext.Out)
-                    .StartLocalAsync(6379)
+                new RedisTestServer(6379, TestContext.Out)
+                    .StartAsync()
                     .Wait(_cancellationTokenSource.Token);
-            } catch {
+            }
+            catch
+            {
+                // ignored
             }
         }).Start();
     }
