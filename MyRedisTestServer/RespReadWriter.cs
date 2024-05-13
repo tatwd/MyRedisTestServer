@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace MyRedisTestServer;
 
@@ -19,7 +13,7 @@ public static class RespReadWriter
 
         var line = ReadLineInternal(stringReader);
 
-        var elems = 0;
+        int elems;
         
         switch (line[0])
         {
@@ -71,7 +65,7 @@ public static class RespReadWriter
         
     }
 
-    public static string[]? ReadStrings(string str)
+    public static string[] ReadStrings(string str)
     {
         var items = ReadArray(str);
         
@@ -144,7 +138,7 @@ public static class RespReadWriter
             }
             
             default:
-                throw new NotSupportedException(ErrProtocol);
+                throw new NotSupportedException(ErrProtocol + "(" + line[0] +  ")");
         }
     }
 
@@ -190,8 +184,13 @@ public static class RespReadWriter
 
     private static string ReadLineInternal(TextReader textReader)
     {
+        // var line = textReader.ReadLine();
+        //
+        // return line + "\r\n";
+
+
         var line = new StringBuilder(128);
-        
+
         var hasNext = TryReadNextChar(textReader, out var next);
 
         while (hasNext)
@@ -202,10 +201,10 @@ public static class RespReadWriter
             {
                 break;
             }
-            
+
             hasNext = TryReadNextChar(textReader, out next);
         }
-        
+
         if (line.Length < 3)
         {
             throw new NotSupportedException(ErrProtocol);
