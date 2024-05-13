@@ -11,7 +11,7 @@ public static class RespReadWriter
     {
         using var stringReader = new StringReader(str);
 
-        var line = ReadLineInternal(stringReader);
+        var line = CheckAndReadLine(stringReader);
 
         int elems;
         
@@ -44,7 +44,7 @@ public static class RespReadWriter
     public static string ReadString(string str)
     {
         using var stringReader = new StringReader(str);
-        var line = ReadLineInternal(stringReader);
+        var line = CheckAndReadLine(stringReader);
 
         switch (line[0])
         {
@@ -56,9 +56,9 @@ public static class RespReadWriter
                     return line;
                 }
                 
-                var buff = ReadChars(stringReader, length1);
-                return new string(buff, 0, buff.Length - 2);
-                
+                var buff = stringReader.ReadLine();
+                return buff!;
+            
             default:
                 throw new NotSupportedException(ErrProtocol);
         }
@@ -82,7 +82,7 @@ public static class RespReadWriter
     // Understands RESP3 proto.
     public static string Read(TextReader textReader)
     {
-        var line = ReadLineInternal(textReader);
+        var line = CheckAndReadLine(textReader);
 
         switch (line[0])
         {
@@ -103,8 +103,8 @@ public static class RespReadWriter
                     return line;
                 }
 
-                var buff = ReadChars(textReader, length);
-                return line + new string(buff);
+                var buff = ReadLineWithCrlf(textReader);
+                return line + buff;
             }
             case '*': // arrays are: `*6\r\n...`
             case '>': // pushdata is: `>6\r\n...`
@@ -167,28 +167,21 @@ public static class RespReadWriter
     {
         return int.Parse(line.Substring(1, line.Length - 3));
     }
-
-    private static char[] ReadChars(TextReader textReader, int length)
+    
+    private static string CheckAndReadLine(TextReader textReader)
     {
-        var pos = 0;
-        var buff = new char[length + 2];
-        
-        while (pos < length + 2)
+        var line = ReadLineWithCrlf(textReader);
+
+        if (line.Length < 3)
         {
-            var n = textReader.Read(buff, pos, buff.Length);
-            pos += n;
+            throw new NotSupportedException(ErrProtocol);
         }
 
-        return buff;
+        return line.ToString();
     }
-
-    private static string ReadLineInternal(TextReader textReader)
+    
+    private static StringBuilder ReadLineWithCrlf(TextReader textReader)
     {
-        // var line = textReader.ReadLine();
-        //
-        // return line + "\r\n";
-
-
         var line = new StringBuilder(128);
 
         var hasNext = TryReadNextChar(textReader, out var next);
@@ -205,12 +198,7 @@ public static class RespReadWriter
             hasNext = TryReadNextChar(textReader, out next);
         }
 
-        if (line.Length < 3)
-        {
-            throw new NotSupportedException(ErrProtocol);
-        }
-
-        return line.ToString();
+        return line;
     }
 
     private static bool TryReadNextChar(TextReader reader, out char next)

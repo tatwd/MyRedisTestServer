@@ -102,7 +102,7 @@ public class RedisTestServer
     
     private string ReadToEnd(Stream stream)
     {
-        var sr = new StreamReader(stream, Encoding.UTF8);
+        var sr = new StreamReader(stream, Encoding.UTF8, true, 1024);
 
         var request = RespReadWriter.Read(sr);
         Log("请求(raw): " + request);
