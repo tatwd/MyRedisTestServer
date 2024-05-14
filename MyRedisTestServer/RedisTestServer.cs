@@ -26,9 +26,10 @@ public class RedisTestServer
         _listener = new TcpListener(ipEndPoint);
     }
 
-    public void DebugMode(bool enabled)
+    public RedisTestServer DebugMode(bool enabled)
     {
         _enableDebugLog = enabled;
+        return this;
     }
 
     public RedisTestServer AddRedisCmdHandler(string cmdType, IRedisCmdHandler handler)
