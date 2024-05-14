@@ -69,7 +69,7 @@ public class RedisTestServer
         }
         catch (Exception ex)
         {
-            Log(ex.Message);
+            Log(ex.ToString());
         }
         finally
         {
