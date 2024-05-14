@@ -9,7 +9,7 @@
 
       <PropertyGroup>
         <PackageId>MyRedisTestServer</PackageId>
-        <Version>1.0.0-preview.4</Version>
+        <Version>1.0.0-preview.5</Version>
         <Description>A fake redis server for integration testing</Description>
         <PackageTags>Redis Test Server;Unit Testing;Integration Testing</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
