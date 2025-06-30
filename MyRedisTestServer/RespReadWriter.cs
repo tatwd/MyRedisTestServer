@@ -45,7 +45,7 @@ public static class RespReadWriter
     {
         using var stringReader = new StringReader(str);
         var line = CheckAndReadLine(stringReader);
-
+    
         switch (line[0])
         {
             case '$':
@@ -55,14 +55,13 @@ public static class RespReadWriter
                     // -1 is a nil response
                     return line;
                 }
-                
+
                 var buff = stringReader.ReadLine();
                 return buff!;
-            
+
             default:
                 throw new NotSupportedException(ErrProtocol);
         }
-        
     }
 
     public static string[] ReadStrings(string str)
@@ -96,14 +95,14 @@ public static class RespReadWriter
             case '$':
             {
                 // bulk strings are: `$5\r\nhello\r\n`
-                var length = ReadLength(line);
+                var length = ReadLength(line); // expect `\r\n`
                 if (length < 0)
                 {
                     // -1 is a nil response
                     return line;
                 }
 
-                var buff = ReadLineWithCrlf(textReader);
+                var buff = ReadLineWithCrlf(textReader, length + 2); // 2 is `\r\n`
                 return line + buff;
             }
             case '*': // arrays are: `*6\r\n...`
@@ -201,6 +200,32 @@ public static class RespReadWriter
         return line;
     }
 
+    private static StringBuilder ReadLineWithCrlf(TextReader textReader, int byteLength)
+    {
+        var line = new StringBuilder(128);
+
+        var hasNext = TryReadNextChar(textReader, out var next);
+        var i = 0;
+        var tmp = new char[1];
+
+        while (hasNext)
+        {
+            line.Append(next);
+            tmp[0] = next; 
+            i += Encoding.UTF8.GetByteCount(tmp); // char maybe UTF8
+
+            // if (next == '\n')
+            if (i == byteLength)
+            {
+                break;
+            }
+
+            hasNext = TryReadNextChar(textReader, out next);
+        }
+
+        return line;
+    }
+
     private static bool TryReadNextChar(TextReader reader, out char next)
     {
         next = default;
@@ -210,7 +235,7 @@ public static class RespReadWriter
         {
             return false;
         }
-        
+
         next = (char)c;
         return true;
 
