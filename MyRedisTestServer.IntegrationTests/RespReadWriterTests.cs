@@ -159,6 +159,11 @@ public class RespReadWriterTests
     [Test]
     public void Read_withErrorRangeString()
     {
-        ReadTest("*3\r\n-foo\r\n$50\r\nfoobar\r\n$2\r\nhi\r\n");
+        var ex = Assert.Throws<NotSupportedException>(() =>
+        {
+            ReadTest("*3\r\n-foo\r\n$50\r\nfoobar\r\n$2\r\nhi\r\n");
+        });
+        
+        Assert.That(ex.Message, Is.EqualTo("unsupported protocol"));
     }
 }

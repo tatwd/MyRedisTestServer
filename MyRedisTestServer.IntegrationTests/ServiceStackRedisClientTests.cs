@@ -45,12 +45,13 @@ if count == 1 then
 end
 
 return count";
-        var key = Encoding.UTF8.GetBytes("foo");
-        var expire = Encoding.UTF8.GetBytes("3600");
+        var key = "foo"u8.ToArray();
+        var expire = "3600"u8.ToArray();
         
-        var isOk = redis.Eval(luaScript, 2, new[]{ key, expire });
+        var result = redis.Eval(luaScript, 1, key, expire);
         
-        Assert.That(isOk, Is.True);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Length.EqualTo(2));
     }
 
 }

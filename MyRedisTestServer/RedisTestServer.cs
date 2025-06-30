@@ -155,6 +155,11 @@ public class RedisTestServer
             return fakeResponse;
         }
 
+        if (cmdType.Equals("EVAL", StringComparison.OrdinalIgnoreCase))
+        {
+            return RespTypeBuilder.Nil();
+        }
+
         return RespTypeBuilder.Inline("OK");
     }
 

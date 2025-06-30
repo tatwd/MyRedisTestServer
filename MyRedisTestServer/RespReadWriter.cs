@@ -56,8 +56,8 @@ public static class RespReadWriter
                     return line;
                 }
 
-                var buff = stringReader.ReadLine();
-                return buff!;
+                var buff = ReadLineWithCrlf(stringReader, length1); // exclude `\r\n`
+                return buff.ToString();
 
             default:
                 throw new NotSupportedException(ErrProtocol);
